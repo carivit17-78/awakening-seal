@@ -1,0 +1,123 @@
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import i18n from 'i18next';
+import { useTranslation, initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+// --- 1. ПРЕВОДИ ---
+const resources = {
+  bg: {
+    translation: {
+      help_request: "О ПОМОГНЕТЕ",
+      help_offer: "О ПОМАГАМ",
+      role_seeker: "Нужда от помощ (Търсещ)",
+      role_knight: "Предлагам помощ (Рицар Пазител)",
+      seal_title: "ПЕЧАТ НА ПРОБУЖДАНЕТО",
+      table_name: "ЗЛАТНА ТРАПЕЗА",
+      energy_desc: "777 Единици Енергия на Благодатта",
+      share_msg: "Присъедини се към Златната Трапеза и Печата на Пробуждането!"
+    }
+  },
+  en: {
+    translation: {
+      help_request: "O HELP ME",
+      help_offer: "O I HELP",
+      role_seeker: "Need help (Seeker)",
+      role_knight: "Offering help (Guardian Knight)",
+      seal_title: "SEAL OF AWAKENING",
+      table_name: "GOLDEN TABLE",
+      energy_desc: "777 Units of Grace Energy",
+      share_msg: "Join the Golden Table and the Seal of Awakening!"
+    }
+  }
+};
+
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources,
+    fallbackLng: "en",
+    interpolation: { escapeValue: false }
+  });
+
+// --- 2. КОМПОНЕНТ ---
+export default function App() {
+  const { t } = useTranslation();
+  const [role, setRole] = useState(null);
+
+  const shareApp = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: t('seal_title'),
+          text: t('share_msg'),
+          url: window.location.href,
+        });
+      } catch (err) { console.log("Отказано"); }
+    } else {
+      alert("Линк: " + window.location.href);
+    }
+  };
+
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+      
+      {/* ФОНОВО ИЗОБРАЖЕНИЕ (Ако имаш такова в public/bg-image.jpg) */}
+      <div className="absolute inset-0 -z-10 bg-[url('/bg-image.jpg')] bg-cover bg-center opacity-40 blur-sm" />
+
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1 }}
+        className="text-center space-y-12"
+      >
+        {/* ИЗБОР НА РОЛЯ */}
+        <div className="flex gap-10 justify-center items-center">
+          
+          <button 
+            onClick={() => setRole('seeker')}
+            className={`flex flex-col items-center gap-4 transition-all duration-700 ${
+              role === 'seeker' ? 'scale-125' : 'opacity-40 blur-[1px]'
+            }`}
+          >
+            <div className="w-24 h-24 rounded-full border-[4px] border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.7)] flex items-center justify-center bg-red-500/10">
+              <div className="text-red-500 text-4xl">🔥</div>
+            </div>
+            <span className="text-red-500 text-[10px] tracking-widest font-bold uppercase">{t('help_request')}</span>
+          </button>
+
+          <button 
+            onClick={() => setRole('knight')}
+            className={`flex flex-col items-center gap-4 transition-all duration-700 ${
+              role === 'knight' ? 'scale-125' : 'opacity-40 blur-[1px]'
+            }`}
+          >
+            <div className="w-24 h-24 rounded-full border-[4px] border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.7)] flex items-center justify-center bg-emerald-500/10">
+              <div className="text-emerald-500 text-4xl">🔥</div>
+            </div>
+            <span className="text-emerald-500 text-[10px] tracking-widest font-bold uppercase">{t('help_offer')}</span>
+          </button>
+        </div>
+
+        {/* ПЕЧАТ И ТЕКСТ */}
+        <div className="pt-10 space-y-4">
+          <p className="tracking-[0.4em] text-[12px] opacity-80">{t('seal_title')}</p>
+          <div className="h-px w-48 bg-gradient-to-r from-transparent via-white/40 to-transparent mx-auto" />
+          <div className="space-y-1">
+            <p className="tracking-[0.2em] text-[11px] uppercase italic">{t('table_name')}</p>
+            <p className="tracking-widest text-[9px] opacity-60 uppercase">{t('energy_desc')}</p>
+          </div>
+        </div>
+
+        {/* БУТОН СПОДЕЛИ */}
+        <button 
+          onClick={shareApp}
+          className="mt-6 px-8 py-2 border border-white/20 rounded-full text-[10px] tracking-widest hover:bg-white/10 transition-all uppercase"
+        >
+          СПОДЕЛИ БЛАГОДАТТА
+        </button>
+      </motion.div>
+    </div>
+  );
+}
